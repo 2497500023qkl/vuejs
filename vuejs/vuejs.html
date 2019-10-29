@@ -21,7 +21,7 @@
                     <td>操作</td>
                 </tr>
                 <tr v-for="i in users">
-                    <td>{{i.id}}</td>
+                    <td><span v-if="i.id!=''">{{i.id}}</span><span v-else>{{id}}</span></td>
                     <td><span v-if="i.id != ''">{{i.username}}</span><input type="text" v-model="i.username" v-else ></td>
                     <td><span v-if="i.id != ''">{{i.sex}}</span><input type="text" v-model="i.sex" v-else></td>
                     <td><button v-on:click="modify(i)" v-if="i.id != ''">修改</button>
