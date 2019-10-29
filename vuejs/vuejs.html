@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <div id="subject">
+        <div class="addto">
+            <div>新增</div>
+            <div>username:<input type="text" v-model="addto.username"></div>
+            <div>sex:<input type="text" v-model="addto.sex"></div>
+            <div><button @click="add()">确定</button></div>
+        </div>
+        <div class="ltem">
+            <table>
+                <tr>
+                    <td>id</td>
+                    <td>username</td>
+                    <td>sex</td>
+                    <td>操作</td>
+                </tr>
+                <tr v-for="i in users">
+                    <td>{{i.id}}</td>
+                    <td><span v-if="i.id != ''">{{i.username}}</span><input type="text" v-model="i.username" v-else ></td>
+                    <td><span v-if="i.id != ''">{{i.sex}}</span><input type="text" v-model="i.sex" v-else></td>
+                    <td><button v-on:click="modify(i)" v-if="i.id != ''">修改</button>
+                        <button v-on:click="modify(i)" v-else>确定</button>
+                        <button v-on:click="dele(i)" v-if="i.id != ''">删除</button>
+                        <button v-on:click="dele(i)" v-else>取消</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script>
+        var subjecct =new Vue({
+            el:'#subject',
+            data:{
+                users:
+                [
+            ],
+            addto:{
+                username:"",
+                sex:""
+            },
+            addto1:{
+                username:"",
+                sex:""
+            },
+            id:0,
+            },
+            mounted(){
+                this.query();
+            },
+            methods:{
+                query(){
+                    $.ajax({
+                    method:"GET",
+                    dataType:"json",
+                    url:"http://127.0.0.1:8888/readme.php/user",
+                        success:(res)=>{
+                            if(res.length==0){
+                                console.log("没有用户")
+                            }
+                            this.users=res;
+                        }
+                    })
+              },
+                add(){
+                    if(this.addto.username.length==0){
+                        alert("输入用户名")
+                        return
+                    }
+                    if(this.addto.sex.length==0){
+                        alert("输入性别")
+                        return
+                    }
+                    if(this.addto.sex==0||this.addto.sex==1){
+                        $.ajax({
+                        method:"post",
+                        data: this.addto,
+                        dataType: "json",
+                        url:"http://127.0.0.1:8888/readme.php/user/create",
+                        success: (res)=>{
+                            if(parseInt(res)>0){
+                                console.log("创建成功")
+                                this.query()
+                            }
+                        }
+                    })
+                    }else{
+                        alert("性别错误")
+                    }
+                },
+                modify(my){
+                    if(this.id!=0){
+                        console.log(this.id);
+                        my.id=this.id
+                        this.addto1.username=my.username
+                        this.addto1.sex=my.sex
+                        this.add1()
+                        this.id=0
+                        return
+                    }
+                    this.id=my.id
+                    console.log(this.id);
+                    my.id=""
+                },
+                add1(){
+                    if(this.addto1.username.length==0){
+                        alert("输入用户名")
+                        return
+                    }
+                    if(this.addto1.sex.length==0){
+                        alert("输入性别")
+                        return
+                    }
+                    $.ajax({
+                        method:"post",
+                        data: this.addto1,
+                        dataType: "json",
+                        url:"http://127.0.0.1:8888/readme.php/user/update?id="+this.id,
+                        success: (res)=>{
+                            if(res.status==true){
+                                console.log("成功"),
+                                this.query()
+                            }
+                        }
+                    }) 
+                },
+            dele(my){
+                var login=confirm("是否删除？");
+                if(login){
+                    $.ajax({
+                        method:"post",
+                        dataType: "json",
+                        url:"http://127.0.0.1:8888/readme.php/user/delete?id="+my.id,
+                        success: (res)=>{
+                            if(res.status==true){
+                                console.log("成功"),
+                                this.query()
+                            }
+                        }
+                    }) 
+                }
+            }
+            },
+        })
+    </script>
+</body>
+</html>
